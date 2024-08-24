@@ -1,36 +1,56 @@
-// pages/index/index.tsx
+import React, { Component } from 'react'
+import { View } from '@tarojs/components'
+import Taro from '@tarojs/taro'
+import LuckyWheel from '../../components/wheel'
 
-import React from 'react';
-import Taro from '@tarojs/taro';
-import { View } from '@tarojs/components';
-import Wheel from '../../components/wheel';
+export default class Index extends Component {
+  state = {
+    blocks: [
+      { padding: '13px', background: '#869cfa' },
+      { padding: '13px', background: '#e9e8fe' }
+    ],
+    prizes: [
+      { title: '1元红包', background: '#f9e3bb', fonts: [{ text: '1元红包', top: '15%' }] },
+      { title: '100元红包', background: '#f8d384', fonts: [{ text: '100元红包', top: '15%' }] },
+      { title: '谢谢参与', background: '#f9e3bb', fonts: [{ text: '谢谢参与', top: '15%' }] },
+      { title: '10元红包', background: '#f8d384', fonts: [{ text: '10元红包', top: '15%' }] },
+      { title: '50元红包', background: '#f9e3bb', fonts: [{ text: '50元红包', top: '15%' }] },
+      { title: '200元红包', background: '#f8d384', fonts: [{ text: '200元红包', top: '15%' }] }
+    ],
+    buttons: [
+      { radius: '50px', background: '#ffdea0', pointer: true, fonts: [{ text: '开始', top: '-20px' }] }
+    ]
+  }
 
-const wheelItems = [
-  { text: '项目1', color: '#FF6B6B', resultText: '恭喜你获得项目1!', weight: 1 },
-  { text: '项目2', color: '#4ECDC4', resultText: '恭喜你获得项目2!', weight: 2 },
-  { text: '项目3', color: '#45B7D1', resultText: '恭喜你获得项目3!', weight: 3 },
-  { text: '项目4', color: '#F7D065', resultText: '恭喜你获得项目4!', weight: 4 },
-  { text: '项目5', color: '#C06C84', resultText: '恭喜你获得项目5!', weight: 5 },
-  { text: '项目6', color: '#6C5B7B', resultText: '恭喜你获得项目6!', weight: 6 },
-];
-
-const Index: React.FC = () => {
-  const handleResult = (item) => {
-    console.log('抽中的项目:', item.text);
+  onStart = () => {
     Taro.showToast({
-      title: item.resultText,
-      icon: 'none',
-      duration: 2000
-    });
-  };
+      title: '开始抽奖',
+      icon: 'none'
+    })
+  }
 
-  return (
-    <View className='index'>
-      <View style='display: flex; justify-content: center; padding: 20px;'>
-        <Wheel items={wheelItems} onResult={handleResult} />
+  onEnd = (prize: any) => {
+    Taro.showToast({
+      title: `恭喜你获得${prize.title}`,
+      icon: 'none'
+    })
+  }
+
+  render() {
+    const { blocks, prizes, buttons } = this.state
+    return (
+      <View className='index'>
+        <LuckyWheel
+          canvasId='lucky-wheel'
+          width='600rpx'
+          height='600rpx'
+          blocks={blocks}
+          prizes={prizes}
+          buttons={buttons}
+          onStart={this.onStart}
+          onEnd={this.onEnd}
+        />
       </View>
-    </View>
-  );
-};
-
-export default Index;
+    )
+  }
+}

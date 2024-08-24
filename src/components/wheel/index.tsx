@@ -1,194 +1,232 @@
-// components/wheel/index.tsx
+import React from 'react'
+import Taro from '@tarojs/taro'
+import { View, Canvas, Image, BaseEventOrig, ImageProps } from '@tarojs/components'
+import { LuckyWheel as Wheel } from 'lucky-canvas'
+import { changeUnits, resolveImage, getFlag, getImage } from '../../utils'
 
-import React, { useEffect, useRef, useState } from 'react';
-import Taro from '@tarojs/taro';
-import { Canvas, View, Text } from '@tarojs/components';
+export default class LuckyWheel extends React.Component {
+  flag: any
+  ctx: any
+  canvas: any
+  dpr: number
 
-interface WheelItem {
-  text: string;
-  color: string;
-  resultText: string;
-  weight: number;
-}
-
-interface WheelProps {
-  items: WheelItem[];
-  onResult: (item: WheelItem) => void;
-}
-
-const Wheel: React.FC<WheelProps> = ({ items, onResult }) => {
-  const canvasRef = useRef<any>();
-  const [rotating, setRotating] = useState(false);
-  const [result, setResult] = useState<WheelItem | null>(null);
-  const [rotation, setRotation] = useState(0);
-
-  useEffect(() => {
-    drawWheel();
-  }, [items, rotation]);
-
-  // Drawing functions
-  const drawWheel = () => {
-    const ctx = Taro.createCanvasContext('wheelCanvas');
-    const canvasWidth = 300;
-    const canvasHeight = 300;
-    const centerX = canvasWidth / 2;
-    const centerY = canvasHeight / 2;
-    const radius = Math.min(centerX, centerY) - 10;
-
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-    
-    // Draw rotating wheel
-    ctx.save();
-    ctx.translate(centerX, centerY);
-    ctx.rotate((rotation * Math.PI) / 180);
-    drawWheelSegments(ctx, 0, 0, radius);
-    ctx.restore();
-
-    // Draw stationary elements
-    drawCenterButtonWithPointer(ctx, centerX, centerY, radius);
-
-    ctx.draw();
-  };
-
-  const drawWheelSegments = (ctx: any, centerX: number, centerY: number, radius: number) => {
-    const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
-    let startAngle = 0;
-
-    items.forEach((item) => {
-      const sliceAngle = (2 * Math.PI * item.weight) / totalWeight;
-      const endAngle = startAngle + sliceAngle;
-
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY);
-      ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-      ctx.closePath();
-
-      ctx.fillStyle = item.color;
-      ctx.fill();
-
-      drawSegmentText(ctx, item.text, centerX, centerY, radius, startAngle, sliceAngle);
-
-      startAngle = endAngle;
-    });
-  };
-
-  const drawSegmentText = (ctx: any, text: string, centerX: number, centerY: number, radius: number, startAngle: number, sliceAngle: number) => {
-    ctx.save();
-    ctx.rotate(startAngle + sliceAngle / 2);
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '14px sans-serif';
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(text, radius - 20, 0);
-    ctx.restore();
-  };
-
-  const drawCenterButtonWithPointer = (ctx: any, centerX: number, centerY: number, radius: number) => {
-    const buttonRadius = 40;
-    const pointerSize = 10;
-
-    // Create gradient for button
-    const gradient = ctx.createLinearGradient(centerX - buttonRadius, centerY - buttonRadius, centerX + buttonRadius, centerY + buttonRadius);
-    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
-    gradient.addColorStop(1, 'rgba(240, 240, 240, 0.9)');
-
-    // Draw button
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, buttonRadius, 0, 2 * Math.PI);
-    ctx.fillStyle = gradient;
-    ctx.fill();
-
-    // Draw pointer (triangle) at the top of the button
-    ctx.beginPath();
-    ctx.moveTo(centerX, centerY - buttonRadius - pointerSize);
-    ctx.lineTo(centerX - pointerSize, centerY - buttonRadius);
-    ctx.lineTo(centerX + pointerSize, centerY - buttonRadius);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(200, 200, 200, 0.9)';
-    ctx.fill();
-
-    // Draw text
-    ctx.fillStyle = '#333333';
-    ctx.font = '16px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('开始', centerX, centerY);
-
-    // Draw outer circle
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, buttonRadius, 0, 2 * Math.PI);
-    ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  };
-
-  // Animation functions
-  const startRotation = () => {
-    if (rotating) return;
-
-    setRotating(true);
-    setResult(null);
-
-    const totalRotation = 360 * 5 + Math.random() * 360; // 5 full rotations + random
-    const duration = 5000; // 5 seconds
-    const startTime = Date.now();
-
-    const animate = () => {
-      const elapsedTime = Date.now() - startTime;
-      const progress = Math.min(elapsedTime / duration, 1);
-      const currentRotation = easeOutCubic(progress) * totalRotation;
-
-      setRotation(currentRotation);
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      } else {
-        setRotating(false);
-        const winningAngle = totalRotation % 360;
-        const winningItem = getWinningItem(winningAngle);
-        setResult(winningItem);
-        onResult(winningItem);
-      }
-    };
-
-    requestAnimationFrame(animate);
-  };
-
-  const easeOutCubic = (t: number): number => {
-    return 1 - Math.pow(1 - t, 3);
-  };
-
-  // Utility functions
-  const getWinningItem = (angle: number): WheelItem => {
-    const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
-    let accumulatedAngle = 0;
-
-    for (const item of items) {
-      const itemAngle = (360 * item.weight) / totalWeight;
-      if (angle >= accumulatedAngle && angle < accumulatedAngle + itemAngle) {
-        return item;
-      }
-      accumulatedAngle += itemAngle;
+  constructor (props: any) {
+    super(props)
+    this.flag = getFlag()
+    this.ctx = null
+    this.canvas = null
+    this.state = {
+      imgSrc: '',
+      myLucky: null,
+      boxWidth: 300,
+      boxHeight: 300,
+      btnWidth: 0,
+      btnHeight: 0,
     }
+    this.dpr = 0
+  }
 
-    return items[items.length - 1]; // Fallback to last item
-  };
+  componentDidMount () {
+    this.initLucky()
+  }
 
-  return (
-    <View>
-      <Canvas
-        canvasId='wheelCanvas'
-        style='width: 300px; height: 300px;'
-        onClick={startRotation}
-        ref={canvasRef}
-      />
-      {result && (
-        <View style='margin-top: 20px; text-align: center;'>
-          <Text>结果: {result.resultText}</Text>
-        </View>
-      )}
-    </View>
-  );
-};
+  componentDidUpdate (prevProps: { blocks: any; prizes: any; buttons: any }) {
+    const { props, state } = this
+    if (!state.myLucky) return
+    if (props.blocks !== prevProps.blocks) {
+      state.myLucky.blocks = props.blocks
+    }
+    if (props.prizes !== prevProps.prizes) {
+      state.myLucky.prizes = props.prizes
+    }
+    if (props.buttons !== prevProps.buttons) {
+      state.myLucky.buttons = props.buttons
+    }
+  }
 
-export default Wheel;
+  async imgBindload (res: BaseEventOrig<ImageProps.onLoadEventDetail>, name: string, index: string | number, i: string | number) {
+    const img = this.props[name][index].imgs[i]
+    resolveImage(img, this.canvas)
+  }
+
+  getImage () {
+    const page = Taro.getCurrentInstance().page
+    return getImage.call(page, this.props.canvasId, this.canvas)
+  }
+
+  showCanvas () {
+    this.setState({ imgSrc: '' })
+  }
+
+  hideCanvas () {
+    if (this.flag === 'WEB') return
+    this.getImage().then((res: { errMsg: string; tempFilePath: any }) => {
+      if (res.errMsg !== 'canvasToTempFilePath:ok') {
+        return console.error(res)
+      }
+      this.setState({
+        imgSrc: res.tempFilePath
+      })
+    })
+  }
+
+  initLucky () {
+    const { props } = this
+    this.setState({
+      boxWidth: changeUnits(props.width),
+      boxHeight: changeUnits(props.height)
+    }, () => {
+      // 某些情况下获取不到 canvas
+      setTimeout(() => {
+        this.getConfig()
+      }, 100)
+    })
+  }
+
+  getConfig () {
+    let flag = this.flag
+    const dpr = this.dpr = Taro.getSystemInfoSync().pixelRatio
+    if (flag === 'WEB') {
+      // H5 环境
+      const divElement = document.querySelector(`#${this.props.canvasId}`)
+      this.drawLucky({
+        dpr,
+        flag,
+        divElement,
+        width: this.state.boxWidth,
+        height: this.state.boxHeight,
+        rAF: requestAnimationFrame,
+      })
+    } else {
+      // 小程序环境
+      const page = Taro.getCurrentInstance().page
+      Taro.createSelectorQuery().in(page).select(`#${this.props.canvasId}`).fields({
+        node: true, size: true
+      }).exec((res) => {
+        if (!res[0] || !res[0].node) return console.error('lucky-canvas 获取不到 canvas 标签')
+        const { node, width, height } = res[0]
+        const canvas = this.canvas = node
+        const ctx = this.ctx = canvas.getContext('2d')
+        canvas.width = width * dpr
+        canvas.height = height * dpr
+        ctx.scale(dpr, dpr)
+        this.drawLucky({
+          dpr,
+          flag,
+          ctx,
+          width,
+          height,
+        })
+      })
+    }
+  }
+
+  drawLucky (config: Partial<{ nodeType?: number; flag: "WEB" | "MP-WX" | "UNI-H5" | "UNI-MP" | "TARO-H5" | "TARO-MP"; el?: string; divElement?: HTMLDivElement; canvasElement?: HTMLCanvasElement; ctx: CanvasRenderingContext2D; dpr: number; handleCssUnit?: (num: number, unit: string) => number; rAF?: Function; setTimeout: Function; setInterval: Function; clearTimeout: Function; clearInterval: Function; beforeCreate?: Function; beforeResize?: Function; afterResize?: Function; beforeInit?: Function; afterInit?: Function; beforeDraw?: Function; afterDraw?: Function; afterStart?: Function }>) {
+    const _this = this
+    const { props, flag, ctx } = this
+    const myLucky = new Wheel({
+      ...config,
+      setTimeout,
+      clearTimeout,
+      setInterval,
+      clearInterval,
+      unitFunc: (num: any, unit: any) => changeUnits(num + unit),
+      beforeCreate: function () {
+        if (flag === 'WEB') return
+        const Radius = Math.min(this.config.width, this.config.height) / 2
+        ctx.translate(Radius, Radius)
+      },
+      beforeInit: function () {
+        if (flag === 'WEB') return
+        ctx.translate(-this.Radius, -this.Radius)
+      },
+      afterInit: function () {
+        // 动态设置按钮大小
+        _this.setState({
+          btnWidth: this.maxBtnRadius * 2,
+          btnHeight: this.maxBtnRadius * 2,
+        })
+      },
+      afterStart: () => {
+        this.showCanvas()
+      },
+    }, {
+      ...props,
+      width: config.width,
+      height: config.height,
+      start: (...rest) => {
+        props.onStart && props.onStart(...rest)
+      },
+      end: (...rest) => {
+        props.onEnd && props.onEnd(...rest)
+        this.hideCanvas()
+      }
+    })
+    this.setState({ myLucky })
+  }
+
+  init (...rest: any[]) {
+    this.state.myLucky.init(...rest)
+  }
+
+  play (...rest: any[]) {
+    this.state.myLucky.play(...rest)
+  }
+
+  stop (...rest: any[]) {
+    this.state.myLucky.stop(...rest)
+  }
+
+  toPlay () {
+    this.state.myLucky.startCallback()
+  }
+
+  render () {
+    const { props, state, flag } = this
+    const boxSize = { width: state.boxWidth + 'px', height: state.boxHeight + 'px' }
+    const btnSize = { width: state.btnWidth + 'px', height: state.btnHeight + 'px' }
+    const showImage = state.myLucky && flag !== 'WEB'
+    return flag === 'WEB' ? <div id={props.canvasId}></div> : (
+      <View className='lucky-box' style={boxSize}>
+        <Canvas type='2d' className='lucky-canvas' id={props.canvasId} canvasId={props.canvasId} style={boxSize}></Canvas>
+        <Image src={state.imgSrc} onLoad={() => state.myLucky.clearCanvas()} style={boxSize}></Image>
+        {/* 按钮 */}
+        <View className='lucky-wheel-btn' onClick={e => this.toPlay(e)} style={btnSize}></View>
+        {/* 图片 */}
+        { showImage ? <View className='lucky-imgs'>
+          {
+            props.blocks.map((block: { imgs: any[] }, index: string | number | undefined) => <View key={index}>
+              {
+                block.imgs ? <View>
+                  { block.imgs.map((img: { src: string }, i: string | number | undefined) => <Image key={i} src={img.src} onLoad={e => this.imgBindload(e, 'blocks', index, i)}></Image>) }
+                </View> : null
+              }
+            </View>)
+          }
+        </View> : null }
+        { showImage ? <View className='lucky-imgs'>
+          {
+            props.prizes.map((prize: { imgs: any[] }, index: string | number | undefined) => <View key={index}>
+              {
+                prize.imgs ? <View>
+                  { prize.imgs.map((img: { src: string }, i: string | number | undefined) => <Image key={i} src={img.src} onLoad={e => this.imgBindload(e, 'prizes', index, i)}></Image>) }
+                </View> : null
+              }
+            </View>)
+          }
+        </View> : null }
+        { showImage ? <View className='lucky-imgs'>
+          {
+            props.buttons.map((button: { imgs: any[] }, index: string | number | undefined) => <View key={index}>
+              {
+                button.imgs ? <View>
+                  { button.imgs.map((img: { src: string }, i: string | number | undefined) => <Image key={i} src={img.src} onLoad={e => this.imgBindload(e, 'buttons', index, i)}></Image>) }
+                </View> : null
+              }
+            </View>)
+          }
+        </View> : null }
+      </View>
+    )
+}
+}
