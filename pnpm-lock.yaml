@@ -14,6 +14,9 @@ importers:
       '@babel/runtime':
         specifier: ^7.24.4
         version: 7.25.0
+      '@lucky-canvas/taro':
+        specifier: ^0.0.14
+        version: 0.0.14
       '@tarojs/components':
         specifier: 4.0.4
         version: 4.0.4(@tarojs/helper@4.0.4)(@tarojs/shared@4.0.4)(@types/react@18.3.3)(postcss@8.4.41)(react@18.3.1)(rollup@3.29.4)
@@ -1175,6 +1178,9 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==, tarball: https://registry.npmmirror.com/@jridgewell/trace-mapping/-/trace-mapping-0.3.25.tgz}
+
+  '@lucky-canvas/taro@0.0.14':
+    resolution: {integrity: sha512-c/H4SSxnyw51PS13wspnTE+mesNA0TgbjjQklHs8QaeGWQ7tlH75LLS7lQiGekDB1j3QgXKPAftWmbhcOUkl7g==}
 
   '@napi-rs/triples@1.2.0':
     resolution: {integrity: sha512-HAPjR3bnCsdXBsATpDIP5WCrw0JcACwhhrwIAQhiR46n+jm+a2F8kBsfseAuWtSyQ+H3Yebt2k43B5dy+04yMA==, tarball: https://registry.npmmirror.com/@napi-rs/triples/-/triples-1.2.0.tgz}
@@ -5648,6 +5654,10 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
+
+  '@lucky-canvas/taro@0.0.14':
+    dependencies:
+      lucky-canvas: 1.7.27
 
   '@napi-rs/triples@1.2.0': {}
 

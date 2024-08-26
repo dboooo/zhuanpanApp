@@ -1,36 +1,32 @@
 import React from 'react'
 import Taro from '@tarojs/taro'
-import { View, Canvas, Image, BaseEventOrig, ImageProps } from '@tarojs/components'
+import { View, Canvas, Image } from '@tarojs/components'
 import { LuckyWheel as Wheel } from 'lucky-canvas'
 import { changeUnits, resolveImage, getFlag, getImage } from '../../utils'
+import './index.scss'
 
 export default class LuckyWheel extends React.Component {
-  flag: any
-  ctx: any
-  canvas: any
-  dpr: number
+  flag = getFlag()
+  ctx = null
+  canvas = null
+  state = {
+    imgSrc: '',
+    myLucky: null,
+    boxWidth: 300,
+    boxHeight: 300,
+    btnWidth: 0,
+    btnHeight: 0,
+  }
 
-  constructor (props: any) {
+  constructor (props) {
     super(props)
-    this.flag = getFlag()
-    this.ctx = null
-    this.canvas = null
-    this.state = {
-      imgSrc: '',
-      myLucky: null,
-      boxWidth: 300,
-      boxHeight: 300,
-      btnWidth: 0,
-      btnHeight: 0,
-    }
-    this.dpr = 0
   }
 
   componentDidMount () {
     this.initLucky()
   }
 
-  componentDidUpdate (prevProps: { blocks: any; prizes: any; buttons: any }) {
+  componentDidUpdate (prevProps) {
     const { props, state } = this
     if (!state.myLucky) return
     if (props.blocks !== prevProps.blocks) {
@@ -44,7 +40,7 @@ export default class LuckyWheel extends React.Component {
     }
   }
 
-  async imgBindload (res: BaseEventOrig<ImageProps.onLoadEventDetail>, name: string, index: string | number, i: string | number) {
+  async imgBindload (res, name, index, i) {
     const img = this.props[name][index].imgs[i]
     resolveImage(img, this.canvas)
   }
@@ -60,7 +56,7 @@ export default class LuckyWheel extends React.Component {
 
   hideCanvas () {
     if (this.flag === 'WEB') return
-    this.getImage().then((res: { errMsg: string; tempFilePath: any }) => {
+    this.getImage().then(res => {
       if (res.errMsg !== 'canvasToTempFilePath:ok') {
         return console.error(res)
       }
@@ -121,7 +117,7 @@ export default class LuckyWheel extends React.Component {
     }
   }
 
-  drawLucky (config: Partial<{ nodeType?: number; flag: "WEB" | "MP-WX" | "UNI-H5" | "UNI-MP" | "TARO-H5" | "TARO-MP"; el?: string; divElement?: HTMLDivElement; canvasElement?: HTMLCanvasElement; ctx: CanvasRenderingContext2D; dpr: number; handleCssUnit?: (num: number, unit: string) => number; rAF?: Function; setTimeout: Function; setInterval: Function; clearTimeout: Function; clearInterval: Function; beforeCreate?: Function; beforeResize?: Function; afterResize?: Function; beforeInit?: Function; afterInit?: Function; beforeDraw?: Function; afterDraw?: Function; afterStart?: Function }>) {
+  drawLucky (config) {
     const _this = this
     const { props, flag, ctx } = this
     const myLucky = new Wheel({
@@ -130,7 +126,7 @@ export default class LuckyWheel extends React.Component {
       clearTimeout,
       setInterval,
       clearInterval,
-      unitFunc: (num: any, unit: any) => changeUnits(num + unit),
+      unitFunc: (num, unit) => changeUnits(num + unit),
       beforeCreate: function () {
         if (flag === 'WEB') return
         const Radius = Math.min(this.config.width, this.config.height) / 2
@@ -165,15 +161,15 @@ export default class LuckyWheel extends React.Component {
     this.setState({ myLucky })
   }
 
-  init (...rest: any[]) {
+  init (...rest) {
     this.state.myLucky.init(...rest)
   }
 
-  play (...rest: any[]) {
+  play (...rest) {
     this.state.myLucky.play(...rest)
   }
 
-  stop (...rest: any[]) {
+  stop (...rest) {
     this.state.myLucky.stop(...rest)
   }
 
@@ -195,10 +191,10 @@ export default class LuckyWheel extends React.Component {
         {/* 图片 */}
         { showImage ? <View className='lucky-imgs'>
           {
-            props.blocks.map((block: { imgs: any[] }, index: string | number | undefined) => <View key={index}>
+            props.blocks.map((block, index) => <View key={index}>
               {
                 block.imgs ? <View>
-                  { block.imgs.map((img: { src: string }, i: string | number | undefined) => <Image key={i} src={img.src} onLoad={e => this.imgBindload(e, 'blocks', index, i)}></Image>) }
+                  { block.imgs.map((img, i) => <Image key={i} src={img.src} onLoad={e => this.imgBindload(e, 'blocks', index, i)}></Image>) }
                 </View> : null
               }
             </View>)
@@ -206,10 +202,10 @@ export default class LuckyWheel extends React.Component {
         </View> : null }
         { showImage ? <View className='lucky-imgs'>
           {
-            props.prizes.map((prize: { imgs: any[] }, index: string | number | undefined) => <View key={index}>
+            props.prizes.map((prize, index) => <View key={index}>
               {
                 prize.imgs ? <View>
-                  { prize.imgs.map((img: { src: string }, i: string | number | undefined) => <Image key={i} src={img.src} onLoad={e => this.imgBindload(e, 'prizes', index, i)}></Image>) }
+                  { prize.imgs.map((img, i) => <Image key={i} src={img.src} onLoad={e => this.imgBindload(e, 'prizes', index, i)}></Image>) }
                 </View> : null
               }
             </View>)
@@ -217,10 +213,10 @@ export default class LuckyWheel extends React.Component {
         </View> : null }
         { showImage ? <View className='lucky-imgs'>
           {
-            props.buttons.map((button: { imgs: any[] }, index: string | number | undefined) => <View key={index}>
+            props.buttons.map((button, index) => <View key={index}>
               {
                 button.imgs ? <View>
-                  { button.imgs.map((img: { src: string }, i: string | number | undefined) => <Image key={i} src={img.src} onLoad={e => this.imgBindload(e, 'buttons', index, i)}></Image>) }
+                  { button.imgs.map((img, i) => <Image key={i} src={img.src} onLoad={e => this.imgBindload(e, 'buttons', index, i)}></Image>) }
                 </View> : null
               }
             </View>)
@@ -228,5 +224,20 @@ export default class LuckyWheel extends React.Component {
         </View> : null }
       </View>
     )
+  }
 }
+
+LuckyWheel.defaultProps = {
+  canvasId: 'lucky-wheel',
+  width: '600rpx',
+  height: '600rpx',
+  blocks: [],
+  prizes: [],
+  buttons: [],
+  defaultStyle: {},
+  defaultConfig: {
+    speed: 15,
+    accelerationTime: 2000,
+    decelerationTime: 1500
+  },
 }

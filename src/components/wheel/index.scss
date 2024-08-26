@@ -1,22 +1,35 @@
 .lucky-box {
   position: relative;
+  overflow: hidden;
   margin: 0 auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
-.lucky-canvas {
+.lucky-box .lucky-canvas {
   position: absolute;
-  top: 0;
+  pointer-events: none;
   left: 0;
+  top: 0;
 }
 
-.lucky-wheel-btn {
+.lucky-box .lucky-wheel-btn {
   position: absolute;
-  top: 50%;
   left: 50%;
+  top: 50%;
   transform: translate(-50%, -50%);
-  background-color: #ffdea0;
+  background: rgba(0, 0, 0, 0);
   border-radius: 50%;
+  cursor: pointer;
+}
+
+.lucky-box .lucky-grid-btn {
+  position: absolute;
+  background: rgba(0, 0, 0, 0);
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.lucky-box .lucky-imgs {
+  width: 0;
+  height: 0;
+  visibility: hidden;
 }
