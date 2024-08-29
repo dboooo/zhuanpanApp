@@ -1,0 +1,25 @@
+.config-wheel-page {
+    padding: 20px;
+}
+
+.prize-list {
+    margin-bottom: 20px;
+}
+
+.prize-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.add-button {
+    margin-top: 20px;
+    background-color: #1890ff;
+    color: white;
+}
+
+.remove-button {
+    background-color: #ff4d4f;
+    color: white;
+}
