@@ -11,7 +11,7 @@ export default class ConfigWheel extends Component {
 
     const { index, type } = Taro.getCurrentInstance().router.params
 
-    let wheel = { title: '', prizes: [], showOnHome: false }
+    let wheel = { title: '默认转盘', prizes: [], showOnHome: false }
 
     if (index >= 0) {
       const wheelsData = getWheelsData(type)
@@ -71,6 +71,11 @@ export default class ConfigWheel extends Component {
 
   saveWheel = () => {
     const { index, title, prizes, showOnHome, type } = this.state
+    if(title === '') {
+      Taro.showToast({ title: '请输入标题', icon: 'error' })
+      return
+    }
+
     let wheelsData = getWheelsData(type)
 
     const wheel = { title, prizes, showOnHome }
@@ -152,9 +157,9 @@ export default class ConfigWheel extends Component {
 
           <AtSwitch title='展示在首页' checked={showOnHome} onChange={this.handleShowOnHomeChange} />
 
-          <AtButton onClick={this.saveWheel}>
+          <Button onClick={this.saveWheel}>
             保存配置
-          </AtButton>
+          </Button>
         </AtForm>
       </View>
     )
