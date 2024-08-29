@@ -46,6 +46,7 @@ export default defineConfig<'vite'>(async (merge, { command, mode }) => {
       },
     },
     h5: {
+      esnextModules: ['taro-ui'],
       publicPath: '/',
       staticDirectory: 'static',
 
