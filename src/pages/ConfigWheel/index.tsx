@@ -1,11 +1,22 @@
 import React, { Component } from 'react'
-import { View, Input, Button } from '@tarojs/components'
+import { View, Input, Button, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { AtForm, AtInput, AtSwitch } from 'taro-ui'
 import { getWheelsData, setWheelsData, getHomeWheelsData, setHomeWheelsData } from '../../utils/globalData'
 import './index.scss'
 
-const colorOptions = ['#FFEBEE', '#FFCDD2', '#EF9A9A', '#FFCCBC', '#F8BBD0', '#E1BEE7', '#D1C4E9', '#C5CAE9', '#BBDEFB', '#B2EBF2']
+const colorOptions = ['#FFEBEE', '#FFCDD2', '#EF9A9A', '#FFCCBC', '#F8BBD0', '#E1BEE7', '#D1C4E9', '#C5CAE9', '#BBDEFB', '#B2EBF2','#fef4d9',
+'#fce8bc',
+'#f7e0a3',
+'#fef4d9',
+'#fce8bc',
+'#f7e0a3',
+'#d9fef4',
+'#bcfce8',
+'#a3f7e0',
+'#d9fef4',
+'#bcfce8',
+'#a3f7e0']
 
 export default class ConfigWheel extends Component {
   constructor(props) {
@@ -190,6 +201,7 @@ export default class ConfigWheel extends Component {
 
         {selectingColorFor !== null && (
           <View className='color-picker-modal'>
+            <Text className='picker-title'>选择一个你喜欢的颜色吧~</Text>
             <View className='color-picker'>
               {colorOptions.map((color, index) => (
                 <View
@@ -199,8 +211,8 @@ export default class ConfigWheel extends Component {
                   onClick={() => this.selectColor(color)}
                 ></View>
               ))}
-              <Button className='close-button' onClick={this.closeColorPicker}>关闭</Button>
             </View>
+            <Button className='close-button' onClick={this.closeColorPicker}>关闭</Button>
           </View>
         )}
       </View>

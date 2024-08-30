@@ -2,10 +2,11 @@ import React, { Component } from 'react'
 import { View, Text, Swiper, SwiperItem } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import LuckyWheel from '../../components/wheel'
-import { getWheelsData } from '../../utils/globalData'
+import { getWheelsData,setWheelsData } from '../../utils/globalData'
 import './index.scss'
 
 export default class Index extends Component {
+  sysWheels: any[]
   constructor(props) {
     super(props)
     this.state = {
@@ -23,6 +24,35 @@ export default class Index extends Component {
         }
       ]
     }
+
+    this.sysWheels = [
+      {
+        title: '今天吃什么',
+        prizes: [
+          { range: 50, background: '#fef4d9', fonts: [{ text: '火锅', top: '15%', fontColor: '#333', fontSize: '16px' }] },
+          { range: 30, background: '#fce8bc', fonts: [{ text: '烧烤', top: '15%', fontColor: '#333', fontSize: '16px' }] },
+          { range: 10, background: '#f7e0a3', fonts: [{ text: '寿司', top: '15%', fontColor: '#333', fontSize: '16px' }] },
+          { range: 20, background: '#fef4d9', fonts: [{ text: '炸鸡', top: '15%', fontColor: '#333', fontSize: '16px' }] },
+          { range: 40, background: '#fce8bc', fonts: [{ text: '披萨', top: '15%', fontColor: '#333', fontSize: '16px' }] },
+          { range: 20, background: '#f7e0a3', fonts: [{ text: '汉堡', top: '15%', fontColor: '#333', fontSize: '16px' }] }
+        ],
+        showOnHome: true
+      },
+      {
+        title: '今天练什么',
+        prizes: [
+          { range: 40, background: '#d9fef4', fonts: [{ text: '跑步', top: '15%', fontColor: '#333', fontSize: '16px' }] },
+          { range: 30, background: '#bcfce8', fonts: [{ text: '游泳', top: '15%', fontColor: '#333', fontSize: '16px' }] },
+          { range: 20, background: '#a3f7e0', fonts: [{ text: '瑜伽', top: '15%', fontColor: '#333', fontSize: '16px' }] },
+          { range: 10, background: '#d9fef4', fonts: [{ text: '举重', top: '15%', fontColor: '#333', fontSize: '16px' }] },
+          { range: 50, background: '#bcfce8', fonts: [{ text: '骑行', top: '15%', fontColor: '#333', fontSize: '16px' }] },
+          { range: 30, background: '#a3f7e0', fonts: [{ text: '拳击', top: '15%', fontColor: '#333', fontSize: '16px' }] }
+        ],
+        showOnHome: true
+      }
+    ]
+
+    setWheelsData(this.sysWheels, 'system')
   }
 
   componentDidMount() {
