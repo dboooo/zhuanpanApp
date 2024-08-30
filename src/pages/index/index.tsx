@@ -29,6 +29,11 @@ export default class Index extends Component {
     this.fetchWheelsData()
   }
 
+  componentDidShow() {
+    // 页面每次展示时重新刷新数据
+    this.fetchWheelsData()
+  }
+
   fetchWheelsData = () => {
     const userWheels = getWheelsData('user')
     const systemWheels = getWheelsData('system')
@@ -45,7 +50,7 @@ export default class Index extends Component {
 
   onStartWheel = (index) => {
     Taro.showToast({
-      title: '开始抽奖',
+      title: '开始啦~~~',
       icon: 'none'
     })
     const wheelRef = this[`wheelRef${index}`]
@@ -58,8 +63,8 @@ export default class Index extends Component {
 
   onEndWheel = (index, prize) => {
     Taro.showToast({
-      title: `你今天${this.state.wheels[index].title.replace('今天', '')}${prize.fonts[0].text}`,
-      icon: 'none'
+      title: `结果是:${prize.fonts[0].text}`,
+      icon: 'success'
     })
   }
 
@@ -67,13 +72,13 @@ export default class Index extends Component {
     const { wheels, blocks, buttons, currentSwiper } = this.state
 
     return (
-      <View className='index'>
+      <View className='zhuanpan-index'>
         <View style={{
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          fontSize: '24px',
-          marginBottom: '20px'
+          fontSize: '2rem',
+          marginBottom: '2rem'
         }}
         >
           <Text>

@@ -1,80 +1,70 @@
 .wheel-config {
-    padding: 20px;
-}
+    background-color: #f8f8f8;
+    height: 100vh;
 
-.config-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
+    .tab-header {
+        display: flex;
+        justify-content: space-around;
+        background-color: #ffff;
+        padding: 1rem;
 
-.title {
-    font-size: 24px;
-    font-weight: bold;
-}
+        Text {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            transition: 0.3s;
+            border-bottom: none;
 
-.type-selector {
-    display: flex;
-}
+            &.active {
+                border-bottom: 1px solid #009688;
+            }
+        }
+    }
 
-.type-selector Button {
-    margin-left: 10px;
-}
+    .tab-content {
+        margin-top: 2rem;
+    }
 
-.type-selector .active {
-    background-color: #1890ff;
-    color: white;
-}
+    .wheel-item {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin: 1rem;
+        padding: 3rem;
+        background-color: #ffff;
+        border-radius: 1rem;
+    }
 
-.wheels-list {
-    display: flex;
-    flex-direction: column;
-}
+    .btnContainer {
+        display: flex;
+        gap: 2rem;
+    }
 
-.wheel-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
+    .fix-button {
+        color: #009688;
+        cursor: pointer;
+    }
 
-.wheel-content {
-    flex: 1;
-    cursor: pointer;
-}
+    .delete-button {
+        color: #d72222;
+        cursor: pointer;
 
-.btnContainer {
-    display: flex;
-    justify-content: flex-end;
-}
+    }
 
-.fix-button {
-    margin-right: 15px;
-    color: #1890ff;
-    cursor: pointer;
-}
+    .add-wheel-box {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 3rem;
+        margin: 1rem;
+        border-radius: 1rem;
+        background-color: #ffff;
+        cursor: pointer;
 
-.delete-button {
-    color: #ff4d4f;
-    cursor: pointer;
-}
-
-.add-wheel-box {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    padding: 20px;
-    border: 2px dashed #ddd;
-    border-radius: 10px;
-    cursor: pointer;
-}
-
-.add-icon {
-    font-size: 24px;
-    margin-right: 10px;
+        .add-icon {
+            font-size: 1.75rem;
+            margin-right: 0.75rem;
+        }
+    }
 }

@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
 import { View, Input, Button } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { AtForm, AtInput, AtButton, AtSwitch } from 'taro-ui'
+import { AtForm, AtInput, AtSwitch } from 'taro-ui'
 import { getWheelsData, setWheelsData, getHomeWheelsData, setHomeWheelsData } from '../../utils/globalData'
 import './index.scss'
+
+const colorOptions = ['#FFEBEE', '#FFCDD2', '#EF9A9A', '#FFCCBC', '#F8BBD0', '#E1BEE7', '#D1C4E9', '#C5CAE9', '#BBDEFB', '#B2EBF2']
 
 export default class ConfigWheel extends Component {
   constructor(props) {
@@ -21,8 +23,8 @@ export default class ConfigWheel extends Component {
     // 确保初始化至少两个选项
     if (wheel.prizes.length < 2) {
       wheel.prizes = [
-        { range: 10, background: '#ffffff', fonts: [{ text: '选项1', top: 15, fontColor: '#333', fontSize: '16px' }], imgs: [] },
-        { range: 10, background: '#ffffff', fonts: [{ text: '选项2', top: 15, fontColor: '#333', fontSize: '16px' }], imgs: [] }
+        { range: 10, background: '#FFEBEE', fonts: [{ text: '选项1', top: 15, fontColor: '#333', fontSize: '16px' }], imgs: [] },
+        { range: 10, background: '#EF9A9A', fonts: [{ text: '选项2', top: 15, fontColor: '#333', fontSize: '16px' }], imgs: [] }
       ]
     }
 
@@ -32,6 +34,7 @@ export default class ConfigWheel extends Component {
       title: wheel.title,
       prizes: wheel.prizes,
       showOnHome: wheel.showOnHome,
+      selectingColorFor: null // 当前正在选择颜色的奖品索引
     }
   }
 
@@ -51,7 +54,7 @@ export default class ConfigWheel extends Component {
 
   addPrize = () => {
     this.setState({
-      prizes: [...this.state.prizes, { range: 10, background: '#ffffff', fonts: [{ text: `选项${this.state.prizes.length + 1}`, top: 15, fontColor: '#333', fontSize: '16px' }], imgs: [] }],
+      prizes: [...this.state.prizes, { range: 10, background: '#EF9A9A', fonts: [{ text: `选项${this.state.prizes.length + 1}`, top: 15, fontColor: '#333', fontSize: '16px' }], imgs: [] }],
     })
   }
 
@@ -71,7 +74,7 @@ export default class ConfigWheel extends Component {
 
   saveWheel = () => {
     const { index, title, prizes, showOnHome, type } = this.state
-    if(title === '') {
+    if (title === '') {
       Taro.showToast({ title: '请输入标题', icon: 'error' })
       return
     }
@@ -112,19 +115,37 @@ export default class ConfigWheel extends Component {
     })
   }
 
+  openColorPicker = (index) => {
+    this.setState({ selectingColorFor: index })
+  }
+
+  closeColorPicker = () => {
+    this.setState({ selectingColorFor: null })
+  }
+
+  selectColor = (color) => {
+    const { selectingColorFor, prizes } = this.state
+    if (selectingColorFor !== null) {
+      prizes[selectingColorFor].background = color
+      this.setState({ prizes, selectingColorFor: null })
+    }
+  }
+
   render() {
-    const { title, prizes, showOnHome } = this.state
+    const { title, prizes, showOnHome, selectingColorFor } = this.state
 
     return (
       <View className='config-wheel-page'>
-        <AtForm>
+        <AtForm className='config-form'>
           <AtInput
             name='title'
-            title='转盘名称'
+            title='请输入转盘名称: '
             type='text'
-            placeholder='请输入转盘名称'
+            placeholder='在这里输入...'
+            className='input-text'
             value={title}
             onChange={this.handleTitleChange}
+
           />
 
           <View className='prize-list'>
@@ -144,9 +165,14 @@ export default class ConfigWheel extends Component {
                   value={prize.fonts[0].text || ''}
                   onInput={(e) => this.handlePrizeChange(index, 'text', e.detail.value)}
                 />
-                <Button className='remove-button' onClick={() => this.removePrize(index)}>
+                <View
+                  className='color-box'
+                  style={{ backgroundColor: prize.background }}
+                  onClick={() => this.openColorPicker(index)}
+                ></View>
+                <View className='remove-button' onClick={() => this.removePrize(index)}>
                   删除
-                </Button>
+                </View>
               </View>
             ))}
           </View>
@@ -157,10 +183,26 @@ export default class ConfigWheel extends Component {
 
           <AtSwitch title='展示在首页' checked={showOnHome} onChange={this.handleShowOnHomeChange} />
 
-          <Button onClick={this.saveWheel}>
+          <Button onClick={this.saveWheel} className='store-button'>
             保存配置
           </Button>
         </AtForm>
+
+        {selectingColorFor !== null && (
+          <View className='color-picker-modal'>
+            <View className='color-picker'>
+              {colorOptions.map((color, index) => (
+                <View
+                  key={`color-${index}`}
+                  className='color-option'
+                  style={{ backgroundColor: color }}
+                  onClick={() => this.selectColor(color)}
+                ></View>
+              ))}
+              <Button className='close-button' onClick={this.closeColorPicker}>关闭</Button>
+            </View>
+          </View>
+        )}
       </View>
     )
   }

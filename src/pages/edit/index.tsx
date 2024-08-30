@@ -5,27 +5,33 @@ import { getWheelsData, removeWheelData } from '../../utils/globalData'
 import './index.scss'
 
 const WheelConfig = () => {
-  const [wheels, setWheels] = useState([])
-  const [type, setType] = useState<'user' | 'system'>('user') // 默认显示用户自定义转盘
+  const [currentTab, setCurrentTab] = useState(0) // 默认选中用户自定义
+  const [userWheels, setUserWheels] = useState([])
+  const [systemWheels, setSystemWheels] = useState([])
 
   useEffect(() => {
     fetchWheelsData()
-  }, [type])
+  }, [currentTab])
 
   const fetchWheelsData = () => {
-    const wheelsData = getWheelsData(type)
-    setWheels(wheelsData)
+    if (currentTab === 0) {
+      const wheelsData = getWheelsData('user')
+      setUserWheels(wheelsData)
+    } else {
+      const wheelsData = getWheelsData('system')
+      setSystemWheels(wheelsData)
+    }
   }
 
   const handleAddWheel = () => {
-    // 跳转到 ConfigWheel 页面，指定为新增模式
+    const type = currentTab === 0 ? 'user' : 'system'
     Taro.navigateTo({
       url: `/pages/ConfigWheel/index?type=${type}&index=-1`
     })
   }
 
   const handleEditWheel = (index) => {
-    // 跳转到 ConfigWheel 页面，传递转盘索引和类型
+    const type = currentTab === 0 ? 'user' : 'system'
     Taro.navigateTo({
       url: `/pages/ConfigWheel/index?type=${type}&index=${index}`
     })
@@ -37,7 +43,7 @@ const WheelConfig = () => {
       content: '确认要删除这个转盘吗？',
       success: function (res) {
         if (res.confirm) {
-          // 移除转盘数据
+          const type = currentTab === 0 ? 'user' : 'system'
           removeWheelData(index, type)
           fetchWheelsData()
           Taro.showToast({ title: '成功删除', icon: 'success' })
@@ -48,52 +54,74 @@ const WheelConfig = () => {
     })
   }
 
-  const handleTypeChange = (newType) => {
-    setType(newType)
-  }
-
   return (
     <View className='wheel-config'>
-      <View className='config-header'>
-        <Text className='title'>我的转盘</Text>
-        <View className='type-selector'>
-          <Button onClick={() => handleTypeChange('user')} className={type === 'user' ? 'active' : ''}>用户自定义</Button>
-          <Button onClick={() => handleTypeChange('system')} className={type === 'system' ? 'active' : ''}>系统内置</Button>
-        </View>
+      <View className='tab-header'>
+        <Text className={currentTab === 0 ? 'active' : ''} onClick={() => setCurrentTab(0)}>用户自定义</Text>
+        <Text className={currentTab === 1 ? 'active' : ''} onClick={() => setCurrentTab(1)}>系统内置</Text>
       </View>
 
-      {wheels.length === 0 ? (
-        <View className='no-wheels'>
-          <View className='add-wheel-box' onClick={handleAddWheel}>
-            <Text className='add-icon'>➕</Text>
-            <Text>点击添加转盘</Text>
+      <View className='tab-content'>
+        {currentTab === 0 && (
+          <View>
+            {userWheels.length === 0 ? (
+              <View className='no-wheels'>
+                <View className='add-wheel-box' onClick={handleAddWheel}>
+                  <Text className='add-icon'>➕</Text>
+                  <Text>点击添加转盘</Text>
+                </View>
+              </View>
+            ) : (
+              <View className='wheels-list'>
+                {userWheels.map((wheel, index) => (
+                  <View key={index} className='wheel-item'>
+                    <View
+                      className='wheel-content'
+                      onClick={() => handleEditWheel(index)}
+                    >
+                      <Text>{wheel.title}</Text>
+                    </View>
+                    <View className='btnContainer'>
+                      <Text className='fix-button' onClick={() => handleEditWheel(index)}>修改</Text>
+                      <Text className='delete-button' onClick={() => handleDeleteWheel(index)}>删除</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
           </View>
-        </View>
-      ) : (
-        <View className='wheels-list'>
-          {wheels.map((wheel, index) => (
-            <View key={index} className='wheel-item'>
-              <View
-                className='wheel-content'
-                onClick={() => handleEditWheel(index)}
-              >
-                <Text>{wheel.title}</Text>
-              </View>
-              <View className='btnContainer'>
-                <Text className='fix-button' onClick={() => handleEditWheel(index)}>修改</Text>
-                <Text className='delete-button' onClick={() => handleDeleteWheel(index)}>删除</Text>
-              </View>
-            </View>
-          ))}
-        </View>
-      )}
+        )}
 
-      {wheels.length > 0 && (
-        <View className='add-wheel-box' onClick={handleAddWheel}>
-          <Text className='add-icon'>➕</Text>
-          <Text>点击添加转盘</Text>
-        </View>
-      )}
+        {currentTab === 1 && (
+          <View>
+            {systemWheels.length === 0 ? (
+              <View className='no-wheels'>
+                <View className='add-wheel-box' onClick={handleAddWheel}>
+                  <Text className='add-icon'>➕</Text>
+                  <Text>点击添加转盘</Text>
+                </View>
+              </View>
+            ) : (
+              <View className='wheels-list'>
+                {systemWheels.map((wheel, index) => (
+                  <View key={index} className='wheel-item'>
+                    <View
+                      className='wheel-content'
+                      onClick={() => handleEditWheel(index)}
+                    >
+                      <Text>{wheel.title}</Text>
+                    </View>
+                    <View className='btnContainer'>
+                      <Text className='fix-button' onClick={() => handleEditWheel(index)}>修改</Text>
+                      <Text className='delete-button' onClick={() => handleDeleteWheel(index)}>删除</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+        )}
+      </View>
     </View>
   )
 }
